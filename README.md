@@ -1,2 +1,4 @@
 # ZIP_CONTENT
-Retrievin dat about the intems enclosed in an NTFS compressed folder
+Retrieving data about the items enclosed in an NTFS compressed folder
+
+At this moment, nothing else to tell.
