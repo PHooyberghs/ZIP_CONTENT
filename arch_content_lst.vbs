@@ -45,60 +45,6 @@ SourceFile_Check
 
 ' Get content 
 Get_Content
-sub Get_Content
-	dim sLine,iLineNr,sNonPrintable,sMark,sRead
-	
-	sNonPrintable="[^\w\s\d\.\\\/]"
-	objRegExp.pattern=sNonPrintable
-
-	set otsSource=objFileSystem.OpenTextFile(sArchive,1,-1)
-	sMark=""
-	sLine=""
-	iLineNr=0
-	
-	do while (otsSource.AtEndOfStream<>true) and (instr(sMark,sZipClDirFileMark)=0)
-		sRead=otsSource.read(1)
-		sMark=right(sMark & sRead,4)
-	loop	
-	wscript.echo "sMark : " & sMark
-	sLine=sMark
-	sMark="    "
-	do while (instr(sMark,sZipClDirEndMark)=0) and (otsSource.AtEndOfStream<>true) 
-		do while (otsSource.AtEndOfStream<>true) and (instr(sMark,sZipClDirEndMark)=0) and (instr(sMark,sZipClDirFileMark)=0)
-			sRead=otsSource.read(1)
-			sMark=right(sMark & sRead,4)
-			sLine=sLine & sRead
-		loop
-		iLineNr=iLineNr+1
-		sLine=left(sLine,len(sLine)-4)
-		wscript.echo "LineNr: " & cstr(iLineNr) & ":" & objRegExp.replace(sLine," ")
-		wscript.echo "sMark: " & sMark
-		wscript.echo "LineNr: " & cstr(iLineNr) & ":" & objRegExp.replace(sLine," ")
-		otsOutput.writeline(cstr(iLineNr) & ":")
-		otsOutput.writeline(objRegExp.replace(sLine," "))
-		sLine=sMark
-		sMark=""
-	loop
-	
-	'do while otsSource.AtEndOfStream<>true and instr(sLine,sZipClDirFileMark)=0
-	'	iLineNr=iLineNr+1
-	'	sLine=right(sLine) & otsSource.read(1)
-	'	wscript.echo "LineNr: " & cstr(iLineNr)
-	'	if instr(sLine,sZipClDirFileMark)>0 then
-	'		wscript.echo "HOERA!!!!!!!!!!" & objRegExp.replace(sLine," ")
-	'	end if
-	'loop
-	'otsOutput.writeline(cstr(iLineNr) & ":")
-	'otsOutput.writeline(objRegExp.replace(sLine," "))
-	'do while (otsSource.AtEndOfStream<>true) and (instr(sLine,sZipClDirEndMark)=0)
-	'	iLineNr=iLineNr+1
-	'	sLine=otsSource.readline
-	'	wscript.echo "LineNr: " & cstr(iLineNr) & ":" & objRegExp.replace(sLine," ")
-	'	otsOutput.writeline(cstr(iLineNr) & ":")
-	'	otsOutput.writeline(objRegExp.replace(sLine," "))
-	'loop
-end sub
-
 
 ' Leave
 Normal_Exit
@@ -218,3 +164,86 @@ sub SourceFile_Check
 		end if
 	end if
 end sub
+
+' Get content 
+sub Get_Content
+	dim sLine,iLineNr,sNonPrintable,sMark,sRead,sHexByte,sHex,sDec,sBin,sTxt
+	dim sVersionMadeBy,sMajor,sMinor,sVersionNeeded,sGeneralPurposeFlag,sCompressionMethod,sLastModTime,sLastModDate,sCRC32,sSizeCompressed,sSizeUnCompressed
+	dim sFileNameLength,sExtraFieldLength,sFileCommentLength,sFileName,sExtraField,sFileComment
+	
+	sNonPrintable="[^\w\s\d\.\-\+\?\*\{\}\[\]\(\)\^\$\|\\&/]"
+	objRegExp.pattern=sNonPrintable
+
+	set otsSource=objFileSystem.OpenTextFile(sArchive,1,-1)
+	sMark=""
+	sLine=""
+	iLineNr=0
+	
+	do while (otsSource.AtEndOfStream<>true) and (instr(sMark,sZipClDirFileMark)=0)
+		sRead=otsSource.read(1)
+		sMark=right(sMark & sRead,4)
+	loop	
+	wscript.echo "sMark : " & sMark
+	sLine=sMark
+	sMark="    "
+	do while (instr(sMark,sZipClDirEndMark)=0) and (otsSource.AtEndOfStream<>true) 
+		do while (otsSource.AtEndOfStream<>true) and (instr(sMark,sZipClDirEndMark)=0) and (instr(sMark,sZipClDirFileMark)=0)
+			sRead=otsSource.read(1)
+			sMark=right(sMark & sRead,4)
+			sLine=sLine & sRead
+		loop
+		iLineNr=iLineNr+1
+		sLine=left(sLine,len(sLine)-4)
+		wscript.echo "LineNr: " & cstr(iLineNr) & ":" & objRegExp.replace(sLine," ")
+		wscript.echo "sMark: " & sMark
+		wscript.echo "LineNr: " & cstr(iLineNr) & ":" & objRegExp.replace(sLine," ")
+									
+		sHexByte="&H" & hex(asc(mid(sLine,5,1)))
+		sDec=Cint(sHexByte)
+		sHexByte="&H" & hex(asc(mid(sLine,6,1)))
+		sDec=sDec & "-" & (CDbl(sHexByte)/10)
+		sVersionMadeBy=sDec	'4
+		sHexByte="&H" & hex(asc(mid(sLine,7,1)))
+		sTxt=CInt(sHexByte)
+		sHexByte="&H" & hex(asc(mid(sLine,8,1)))
+		sTxt=sTxt & "." & CInt(sHexByte)
+		sVersionNeeded=sTxt	'2
+		sGeneralPurposeFlag=chrb("K")	'2
+		'sGeneralPurposeFlag=mid(sLine,9,2)	'2
+		'sCompressionMethod=mid(sLine,11,2)	'2
+		'sLastModTime=mid(sLine,13,2)	'2
+		'sLastModDate=mid(sLine,15,2)	'2
+		'sCRC32=mid(sLine,17,2)	'4
+		'sSizeCompressed=mid(sLine,21,2)	'4
+		'sSizeUnCompressed=mid(sLine,25,2)	'4
+		'sFileNameLength=mid(sLine,29,2)	'2
+		'sExtraFieldLength=mid(sLine,31,2)	'2
+		'sFileCommentLength=mid(sLine,33,2)	'2
+		'sFileName	
+		'sExtraField
+		'sFileComment
+									
+		otsOutput.writeline(cstr(iLineNr) & ":")
+		otsOutput.writeline(objRegExp.replace(sLine," "))
+		
+		otsOutput.writeline("sVersionMadeBy: " & sVersionMadeBy)
+		otsOutput.writeline("sVersionNeeded: " & sVersionNeeded)
+		otsOutput.writeline("sGeneralPurposeFlag: " & sGeneralPurposeFlag)
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+		'otsOutput.writeline(objRegExp.replace(sLine," "))
+
+									
+		sLine=sMark
+		sMark=""
+	loop
+end sub
+							
+
+							
