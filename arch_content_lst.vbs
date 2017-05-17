@@ -18,8 +18,9 @@ option explicit
 '''procedure''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 ' Variable declaration
-dim sArchive,sDestination,blnNew,sSourcePath,sSourceFile,sSourceExtension,otsSource,sOutputFile,otsOutput
-dim objFileSystem,objRegExp
+dim vbsFileReverse
+dim sArchive,sArchiveRev,sDestination,blnNew,sSourcePath,sSourceFile,sSourceExtension,otsSource,sOutputFile,otsOutput,sCmd
+dim objShell,objFileSystem,objRegExp
 dim sZipLocalFileMark,sZipClDirFileMark,sZipClDirEndMark
 
 'dim sPathToCheck
@@ -29,6 +30,9 @@ Get_Arguments
 
 ' Set/initialize base objects
 Base_Objects_Initialize
+
+' Retrieve other scripts for execution
+GetScripts
 
 ' Check destination folder/files
 wscript.echo "CheckPath"
@@ -43,6 +47,18 @@ set otsOutput=objFileSystem.CreateTextFile(sOutputFile)
 ' Check source file
 SourceFile_Check
 
+' Reverse file
+objRegExp.Pattern="(.+\\[\w\d\s]+)(\.{1})([\w\d]+)$"
+sArchiveRev=objRegExp.Replace(sArchive,"$1$2REV_$3")
+wscript.echo "sArchiveRev: " & sArchiveRev
+wscript.echo "vbsFileReverse: " & vbsFileReverse
+wscript.echo "host path: " & wscript.path
+sCmd=wscript.fullname & " "  & vbsFileReverse & " " & chr(34) & sArchive & chr(34) & " " & chr(34) & sArchiveRev & chr(34) 
+wscript.echo "sCmd: " & sCmd
+wscript.echo "start reversing"
+objShell.run sCmd,0,-1
+wscript.quit
+
 ' Get content 
 Get_Content
 
@@ -56,7 +72,7 @@ Normal_Exit
 function Normal_Exit
 	set objRegExp = nothing	
 	Set objFileSystem = nothing
-	'Set objShell = nothing
+	Set objShell = nothing
 	wscript.quit(0)
 End function
 
@@ -94,10 +110,24 @@ end sub
 
 'set/intialize base objects
 sub Base_Objects_Initialize
+	'Set objShell = CreateObject("Shell.Application")
+	Set objShell = CreateObject("WScript.Shell")
 	Set objFileSystem = CreateObject( "Scripting.FileSystemObject" )
 	set objRegExp = new regexp
 	objRegExp.IgnoreCase=-1
 	objRegExp.Global=-1  
+end sub
+
+' Prepare other scripts for execution
+Sub GetScripts
+	dim tCurrentDir
+
+	objRegExp.pattern="(.+\\)([\w\d]+\.{1}[\w\d]+)$"
+	tCurrentDir=objRegExp.replace(wscript.ScriptFullName,"$1")
+	
+	' Reverse_Asc_File.vbs
+	vbsFileReverse=tCurrentDir & "Reverse_Asc_File.vbs"
+	
 end sub
 
 ' check/create folder
