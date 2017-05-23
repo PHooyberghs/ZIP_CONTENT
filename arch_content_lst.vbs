@@ -7,9 +7,14 @@ option explicit
 ' http://www.robvanderwoude.com/vbstech_databases_access.php
 ' http://www.robvanderwoude.com/vbstech_files_zip.php
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-'''Arguments''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 '
-'
+' scripts required in same folder as this script:
+'	- Reverse_Asc_File.vbs
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+'''sample call and Arguments''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+' 
+' C:\Windows\System32\cscript [script-path]\zip_content.vbs "archive" "output folder" [/NEW]
 '
 '
 '
