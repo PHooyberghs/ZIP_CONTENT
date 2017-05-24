@@ -144,7 +144,7 @@ sub Get_Arguments
 		if .unnamed.count<>2 then
 			iError=1
 			sError="Arguments not correct (source archive and/or destination path not specified)"
-			'Error_Exit
+			Error_Exit
 		else
 			sArchive = ucase(trim(.unnamed(0)))
 			sDestination = ucase(trim(.unnamed(1)))
