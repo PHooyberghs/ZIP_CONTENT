@@ -303,7 +303,6 @@ sub Get_Content
 		sError=Err.description
 		Error_Exit
 	end if
-
 	
 	sMark=""
 	sLine=""
